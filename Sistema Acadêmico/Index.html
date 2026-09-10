@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Acadêmico - Escola Técnica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .app-container {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            grid-template-rows: auto 1fr auto;
+            grid-template-areas:
+                "header header"
+                "aside  main"
+                "footer footer";
+            min-height: 100vh;
+        }
+
+        header { grid-area: header; }
+        aside  { grid-area: aside; }
+        main   { grid-area: main; }
+        footer { grid-area: footer; }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "header"
+                    "aside"
+                    "main"
+                    "footer";
+            }
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="app-container">
+        <header class="bg-dark text-white p-3 border-bottom border-primary">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <h1 class="h4 mb-0">Sistema Acadêmico TecEdu</h1>
+                <span class="badge bg-primary" id="current-badge">Dashboard / Relatórios</span>
+            </div>
+        </header>
+
+        <aside class="bg-white p-3 border-end">
+            <nav class="nav-menu">
+                <span class="text-uppercase text-muted fw-bold small mb-2">Navegação</span>
+                <button data-target="dashboard" class="btn btn-outline-primary text-start nav-btn active">Dashboard / Relatórios</button>
+                <button data-target="cadastro-aluno" class="btn btn-outline-secondary text-start nav-btn">Cadastrar Alunos</button>
+                <button data-target="lancamento-notas" class="btn btn-outline-secondary text-start nav-btn">Lançamento de Notas</button>
+                <button data-target="turmas" class="btn btn-outline-secondary text-start nav-btn">Gerenciar Turmas</button>
+            </nav>
+        </aside>
+
+        <main class="p-4">
+            
+            <section id="dashboard" class="content-section card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Boletim Desempenho Por Turma</h2>
+                    <button class="btn btn-sm btn-outline-light">Exportar CSV</button>
+                </div>
+                <div class="card-body">
+                    <article class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Matrícula</th>
+                                    <th>Aluno</th>
+                                    <th>Turma</th>
+                                    <th>N1</th>
+                                    <th>N2</th>
+                                    <th>Média</th>
+                                    <th>Situação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-dashboard">
+                                <tr id="aluno-row-202601">
+                                    <td>202601</td>
+                                    <td class="col-nome">Ana Clara Souza</td>
+                                    <td class="col-turma">Dev. Sistemas</td>
+                                    <td class="col-n1">8.5</td>
+                                    <td class="col-n2">9.0</td>
+                                    <td class="col-media"><strong>8.75</strong></td>
+                                    <td class="col-situacao"><span class="badge bg-success">Aprovado</span></td>
+                                </tr>
+                                <tr id="aluno-row-202602">
+                                    <td>202602</td>
+                                    <td class="col-nome">Carlos Eduardo Lima</td>
+                                    <td class="col-turma">Dev. Sistemas</td>
+                                    <td class="col-n1">4.0</td>
+                                    <td class="col-n2">5.5</td>
+                                    <td class="col-media"><strong>4.75</strong></td>
+                                    <td class="col-situacao"><span class="badge bg-danger">Recuperação</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </article>
+                </div>
+            </section>
+
+            <section id="cadastro-aluno" class="content-section card shadow-sm mb-4 d-none">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Cadastro de Novo Aluno</h2>
+                </div>
+                <div class="card-body">
+                    <div id="alerta-aluno"></div>
+
+                    <form id="form-aluno" method="POST" action="">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="nome_aluno" class="form-label">Nome Completo</label>
+                                <input type="text" class="form-control" id="nome_aluno" name="nome_aluno" placeholder="Ex: Lucas Mendes" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email_aluno" class="form-label">E-mail Acadêmico</label>
+                                <input type="email" class="form-control" id="email_aluno" name="email_aluno" placeholder="aluno@escola.edu.br" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="matricula" class="form-label">Matrícula</label>
+                                <input type="number" class="form-control" id="matricula" name="matricula" min="202600" max="202699" placeholder="202603" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="turma_aluno" class="form-label">Turma de Ingressão</label>
+                                <select class="form-select select-turmas" id="turma_aluno" name="turma_id" required>
+                                    <option value="" selected disabled>Selecione...</option>
+                                    <option value="Dev. Sistemas">Dev. Sistemas - Módulo 1</option>
+                                    <option value="Automação">Automação - Módulo 2</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label d-block">Turno</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="turno_cad" id="tManha" value="Manhã" checked>
+                                    <label class="form-check-label" for="tManha">Manhã</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="turno_cad" id="tNoite" value="Noite">
+                                    <label class="form-check-label" for="tNoite">Noite</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-actions mt-4">
+                            <button type="reset" class="btn btn-outline-secondary">Limpar</button>
+                            <button type="submit" class="btn btn-primary">Cadastrar Aluno</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section id="lancamento-notas" class="content-section card shadow-sm mb-4 d-none">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Lançamento e Registro de Notas</h2>
+                </div>
+                <div class="card-body">
+                    <div id="alerta-notas"></div>
+
+                    <form id="form-notas" method="POST" action="">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="turma" class="form-label">Turma / Curso</label>
+                                <select class="form-select select-turmas" id="turma" name="turma" required>
+                                    <option value="" selected disabled>Selecione a turma...</option>
+                                    <option value="Dev. Sistemas">Dev. Sistemas - Módulo 1</option>
+                                    <option value="Automação">Automação - Módulo 2</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="aluno" class="form-label">Aluno</label>
+                                <select class="form-select" id="aluno" name="aluno_id" required>
+                                    <option value="" selected disabled>Selecione o aluno...</option>
+                                    <option value="202601" data-nome="Ana Clara Souza">Ana Clara Souza (Matrícula: 202601)</option>
+                                    <option value="202602" data-nome="Carlos Eduardo Lima">Carlos Eduardo Lima (Matrícula: 202602)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="nota1" class="form-label">Nota N1 (0 a 10)</label>
+                                <input type="number" class="form-control" id="nota1" name="nota1" min="0" max="10" step="0.1" placeholder="0.0" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="nota2" class="form-label">Nota N2 (0 a 10)</label>
+                                <input type="number" class="form-control" id="nota2" name="nota2" min="0" max="10" step="0.1" placeholder="0.0" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="faltas" class="form-label">Total de Faltas</label>
+                                <input type="number" class="form-control" id="faltas" name="faltas" min="0" max="100" placeholder="0" required>
+                            </div>
+                        </div>
+                        <div class="card-actions mt-4">
+                            <button type="reset" class="btn btn-outline-secondary">Limpar</button>
+                            <button type="submit" class="btn btn-primary">Lançar Nota</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section id="turmas" class="content-section card shadow-sm mb-4 d-none">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Gestão de Turmas e Professores</h2>
+                </div>
+                <div class="card-body">
+                    <div id="alerta-turmas"></div>
+
+                    <form id="form-turmas" method="POST" action="" class="mb-4 pb-3 border-bottom">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label for="nome_turma" class="form-label">Nome da Turma</label>
+                                <input type="text" class="form-control" id="nome_turma" name="nome_turma" placeholder="Ex: T-DS2026-2" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="prof_resp" class="form-label">Professor Responsável</label>
+                                <input type="text" class="form-control" id="prof_resp" name="prof_resp" placeholder="Ex: Prof. Ricardo Silva" required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Criar Turma</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Turma</th>
+                                    <th>Professor</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-turmas">
+                                <tr>
+                                    <td>#10</td>
+                                    <td>Dev. Sistemas - Módulo 1</td>
+                                    <td>Prof. Ricardo Silva</td>
+                                    <td><button class="btn btn-sm btn-outline-danger btn-excluir">Excluir</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="bg-dark text-white-50 p-3 text-center">
+            <small>&copy; 2026 Sistema Acadêmico Escola Técnica - Todos os direitos reservados.</small>
+        </footer>
+    </div>
+
+    <script>
+        document.querySelectorAll('.nav-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.nav-btn').forEach(b => {
+                    b.classList.remove('btn-outline-primary', 'active');
+                    b.classList.add('btn-outline-secondary');
+                });
+                button.classList.remove('btn-outline-secondary');
+                button.classList.add('btn-outline-primary', 'active');
+
+                document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('d-none'));
+                const targetId = button.getAttribute('data-target');
+                document.getElementById(targetId).classList.remove('d-none');
+
+                document.getElementById('current-badge').textContent = button.textContent;
+            });
+        });
+
+        function exibirAlerta(containerId, mensagem) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Sucesso!</strong> ${mensagem}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+        }
+
+        let codTurma = 11;
+        document.getElementById('form-turmas').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nomeTurma = document.getElementById('nome_turma').value;
+            const profResp = document.getElementById('prof_resp').value;
+
+            const tbody = document.getElementById('tabela-turmas');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>#${codTurma++}</td>
+                <td>${nomeTurma}</td>
+                <td>${profResp}</td>
+                <td><button class="btn btn-sm btn-outline-danger btn-excluir">Excluir</button></td>
+            `;
+            tbody.appendChild(newRow);
+
+            document.querySelectorAll('.select-turmas').forEach(select => {
+                const opt = new Option(nomeTurma, nomeTurma);
+                select.add(opt);
+            });
+
+            exibirAlerta('alerta-turmas', 'turma criada');
+            this.reset();
+        });
+
+        document.getElementById('form-aluno').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nome = document.getElementById('nome_aluno').value;
+            const mat = document.getElementById('matricula').value;
+            const turma = document.getElementById('turma_aluno').value;
+
+            const selectAluno = document.getElementById('aluno');
+            const newOpt = new Option(`${nome} (Matrícula: ${mat})`, mat);
+            newOpt.dataset.nome = nome;
+            selectAluno.add(newOpt);
+
+            const tbody = document.getElementById('tabela-dashboard');
+            const tr = document.createElement('tr');
+            tr.id = `aluno-row-${mat}`;
+            tr.innerHTML = `
+                <td>${mat}</td>
+                <td class="col-nome">${nome}</td>
+                <td class="col-turma">${turma}</td>
+                <td class="col-n1">-</td>
+                <td class="col-n2">-</td>
+                <td class="col-media"><strong>-</strong></td>
+                <td class="col-situacao"><span class="badge bg-secondary">Pendente</span></td>
+            `;
+            tbody.appendChild(tr);
+
+            exibirAlerta('alerta-aluno', 'cadastro feito');
+            this.reset();
+        });
+
+        document.getElementById('form-notas').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const selectAluno = document.getElementById('aluno');
+            const mat = selectAluno.value;
+            const selectedOption = selectAluno.options[selectAluno.selectedIndex];
+            
+            const turma = document.getElementById('turma').value;
+            const n1 = parseFloat(document.getElementById('nota1').value);
+            const n2 = parseFloat(document.getElementById('nota2').value);
+            const media = ((n1 + n2) / 2).toFixed(2);
+            
+            const situacaoBadge = media >= 6 
+                ? '<span class="badge bg-success">Aprovado</span>' 
+                : '<span class="badge bg-danger">Recuperação</span>';
+
+            let tr = document.getElementById(`aluno-row-${mat}`);
+
+            if (tr) {
+                tr.querySelector('.col-turma').textContent = turma;
+                tr.querySelector('.col-n1').textContent = n1.toFixed(1);
+                tr.querySelector('.col-n2').textContent = n2.toFixed(1);
+                tr.querySelector('.col-media').innerHTML = `<strong>${media}</strong>`;
+                tr.querySelector('.col-situacao').innerHTML = situacaoBadge;
+            } else {
+                const nomeStr = selectedOption.dataset.nome || selectedOption.text.split(' (')[0];
+                const tbody = document.getElementById('tabela-dashboard');
+                tr = document.createElement('tr');
+                tr.id = `aluno-row-${mat}`;
+                tr.innerHTML = `
+                    <td>${mat}</td>
+                    <td class="col-nome">${nomeStr}</td>
+                    <td class="col-turma">${turma}</td>
+                    <td class="col-n1">${n1.toFixed(1)}</td>
+                    <td class="col-n2">${n2.toFixed(1)}</td>
+                    <td class="col-media"><strong>${media}</strong></td>
+                    <td class="col-situacao">${situacaoBadge}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+
+            exibirAlerta('alerta-notas', 'notas lançadas');
+            this.reset();
+        });
+
+        document.getElementById('tabela-turmas').addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-excluir')) {
+                e.target.closest('tr').remove();
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
